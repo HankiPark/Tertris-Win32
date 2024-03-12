@@ -11,38 +11,42 @@
 #include <deque>
 using namespace std;
 
-#define WIDTH_LINE		10
-#define HEIGHT_LINE		20
+#define WIDTH_LINE		15
+#define HEIGHT_LINE		25
 
-#define WHITE_SPACE 50
+#define WHITE_SPACE		50
 
-#define INTERVAL	10
-#define RADIUS		(INTERVAL / 2)
+#define OPTION_BOX		WIDTH_LINE / 2
 
-#define POS(x)		(WHITE_SPACE + (x) * INTERVAL)
+#define INTERVAL		20
+#define RADIUS			(INTERVAL / 2)
 
-#define PII			pair<int, int>
+#define POS(x)			(WHITE_SPACE + (x) * INTERVAL)
 
-
-#define RIGHT		1
-#define LEFT		2
-#define UP			3
-#define DOWN		4
-
-#define BLOCKMAP	vector<vector<int>>
-
-#define OBLOCKCOLOR	1
-#define IBLOCKCOLOR	2
-#define SBLOCKCOLOR	3
-#define ZBLOCKCOLOR	4
-#define LBLOCKCOLOR	5
-#define JBLOCKCOLOR	6
-#define TBLOCKCOLOR	7
+#define PII				pair<int, int>
 
 
-#define CLEAN		1
-#define DRAW		2
-#define LINECLEAN	3
+#define RIGHT			1
+#define LEFT			2
+#define UP				3
+#define DOWN			4
+
+#define BLOCKMAP		vector<vector<int>>
+
+#define OBLOCKCOLOR		1
+#define IBLOCKCOLOR		2
+#define SBLOCKCOLOR		3
+#define ZBLOCKCOLOR		4
+#define LBLOCKCOLOR		5
+#define JBLOCKCOLOR		6
+#define TBLOCKCOLOR		7
+
+
+
+
+#define CLEAN			1
+#define DRAW			2
+#define LINECLEAR		3
 
 
 

@@ -16,10 +16,6 @@
 using namespace std;
 // 82 , 45
 
-
-
-
-
 unsigned int score = 0;
 WCHAR word[1024];
 unsigned int game_mode = 1;
@@ -28,8 +24,7 @@ Drawing* drawing;
 Game* game;
 //Blocks* block;
 
-
-void drawMap(HWND hand);
+RECT gameBox = {POS(0), POS(0), POS(WIDTH_LINE), POS(HEIGHT_LINE)};
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam);
 int WINAPI main(HINSTANCE hIns, HINSTANCE hPrevIns, LPSTR lpCmdLine, int nCmdShow);
@@ -37,9 +32,6 @@ int WINAPI main(HINSTANCE hIns, HINSTANCE hPrevIns, LPSTR lpCmdLine, int nCmdSho
 
 
 
-void drawMap(HWND hwnd) {
-	
-}
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 	
@@ -68,18 +60,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 		
 	}
 	else if (umsg == WM_CHAR) {
-		if (wparam == 'r') {
+		if (game->pause == true) {
+			
+		} else if (wparam == 'r') {
 			game->rotate(wparam);
+		}
+		else if (wparam == 'w') {
+			game->fall(wparam);
 		}
 		else {
 			game->move(wparam);
 		}
 		
-		//drawing->drawBlock(); 
+		//drawing->drawScreen(); 
 		InvalidateRect(hwnd, NULL, true);
 	}
 	else if (umsg == WM_TIMER) {
-		game->timeUpdate();
+		//cout << game->pause << endl;
+		if (game->pause == false) {
+			game->timeUpdate();
+			InvalidateRect(hwnd, NULL, true);
+
+		}
 	}
 	else if (umsg == WM_DESTROY) {
 		KillTimer(hwnd, 1);
@@ -109,7 +111,7 @@ int WINAPI main(HINSTANCE hIns, HINSTANCE hPrevIns, LPSTR lpCmdLine, int nCmdSho
 	RegisterClass(&wc);
 
 	HWND hwnd = CreateWindow(class_name, class_name, WS_OVERLAPPEDWINDOW, 0, 0,
-		2 * WHITE_SPACE + WIDTH_LINE * INTERVAL, 2.5 * WHITE_SPACE + HEIGHT_LINE * INTERVAL,
+		3 * WHITE_SPACE + WIDTH_LINE * INTERVAL + OPTION_BOX * INTERVAL, 2.5 * WHITE_SPACE + HEIGHT_LINE * INTERVAL,
 		NULL, NULL, hIns, NULL);
 
 	ShowWindow(hwnd, SW_SHOW);

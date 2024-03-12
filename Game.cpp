@@ -3,23 +3,30 @@
 Game::Game(Drawing& drawing) :
 	drawing(drawing)
 {
-	block = new Blocks();
-	start = { 0, WIDTH_LINE / 2 - 2, rand() % 7 + 1, 0 };
-	cout << start[0] << start[1] << start[2] << start[3] << endl;
-	now = start;
 	
+	start = { 0, WIDTH_LINE / 2 - 2, rand() % 7 + 1, 0 };
+	//cout << start[0] << start[1] << start[2] << start[3] << endl;
+	now = start;
+	speed = 100;
+	prevTime = timeGetTime();
+	pause = false;
 	updateScreen(DRAW);
 }
 
-void Game::move(int input) {
-
+bool Game::move(int input) {
 	if (input == 'a') {
 		updateScreen(CLEAN);
 		now[1]--;
 		if (checkCrash()) {
 			now[1]++;
+			updateScreen(DRAW);
+			return false;
 		}
-		updateScreen(DRAW);
+		else {
+			updateScreen(DRAW);
+			return true;
+		}
+		
 		
 	}
 	if (input == 'd') {
@@ -27,14 +34,18 @@ void Game::move(int input) {
 		now[1]++;
 		if (checkCrash()) {
 			now[1]--;
+			updateScreen(DRAW);
+			return false;
 		}
-		updateScreen(DRAW);
-		
-		cout << "right" << endl;
+		else {
+			updateScreen(DRAW);
+			return true;
+		}
+		//cout << "right" << endl;
 	}
 	if (input == 'w') {
 		//now[1]++;
-		cout << "up" << endl;
+	//	cout << "up" << endl;
 	}
 	if (input == 's') {
 		updateScreen(CLEAN);
@@ -42,18 +53,29 @@ void Game::move(int input) {
 		if (checkCrash()) {
 			now[0]--;
 			updateScreen(DRAW);
-			updateScreen(LINECLEAN);
+			updateScreen(LINECLEAR);
 			getNewControl();
+			isGameOver();
+			updateScreen(DRAW);
+			return false;
 		}
-		updateScreen(DRAW);
-		
-		cout << "down" << endl;
+		else {
+			updateScreen(DRAW);
+			return true;
+		}
 	}
+	return false;
 }
 
 void Game::getNewControl() {
-	now = { start[0], start[1], rand() % 7 + 1, 0 };
+
+	now = { start[0], start[1], drawing.nextBlock - 1, 0 };
+	drawing.nextBlock = rand() % 7 + 1;
+	drawing.drawNextBlock();
 }
+
+
+
 void Game::rotate(int input) {
 	if (input == 'r') {
 		updateScreen(CLEAN);
@@ -77,7 +99,7 @@ void Game::updateScreen(int type) {
 	int figure = now[2];
 	int rotate = now[3];
 
-	BLOCKMAP loc = block->getBlock(figure)[rotate];
+	BLOCKMAP loc = drawing.block->getBlock(figure)[rotate];
 	if (type == CLEAN) {
 		for (int h = 0; h < 4; h++) {
 			for (int w = 0; w < 4; w++) {
@@ -99,7 +121,7 @@ void Game::updateScreen(int type) {
 			}
 		}
 	}
-	else if (type == LINECLEAN) {
+	else if (type == LINECLEAR) {
 		for (int h = 0; h < 4; h++) {
 			if (h + height >= HEIGHT_LINE) {
 				break;
@@ -112,12 +134,13 @@ void Game::updateScreen(int type) {
 				}
 			}
 			if (check_zero == 0) {
-				cout << "erase" << endl;
+			//	cout << "erase" << endl;
 				drawing.screen.erase(drawing.screen.begin() + h + height);
 				drawing.screen.insert(drawing.screen.begin(), vector<int>(WIDTH_LINE, 0));
+				drawing.score++;
 			}
 			else {
-				cout << "no" << endl;
+			//	cout << "no" << endl;
 			}
 		}
 	}
@@ -138,7 +161,7 @@ bool Game::checkCrash() {
 	int figure = now[2];
 	int rotate = now[3];
 
-	BLOCKMAP loc = block->getBlock(figure)[rotate];
+	BLOCKMAP loc = drawing.block->getBlock(figure)[rotate];
 
 	for (int h = 0; h < 4; h++) {
 		for (int w = 0; w < 4; w++) {
@@ -156,7 +179,44 @@ bool Game::checkCrash() {
 	return false;
 }
 
+void Game::timeUpdate() {
+	DWORD currentTime = timeGetTime();
+	if (currentTime - prevTime < speed) {
+		return;
+	}
+	if (move('s')) {
+		prevTime = currentTime;
+		
+	}
+	
+}
 
+void Game::fall(int input) {
+	if (input == 'w') {
+		updateScreen(CLEAN);
+		int prev = now[0];
+		for (int h = prev; h <= HEIGHT_LINE; h++) {
+			now[0] = h;
+			if (checkCrash()) {
+				now[0]--;
+				updateScreen(DRAW);
+				move('s');
+				break;
+			}
+		}
+		
+	}
+}
+
+
+bool Game::isGameOver() {
+	if (checkCrash()) {
+		pause = true;
+		drawing.isGameOver();
+		return true;
+	}
+	return false;
+}
 
 
 

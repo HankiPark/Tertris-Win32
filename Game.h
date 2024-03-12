@@ -3,27 +3,29 @@
 
 #include "setting.h"
 #include "Drawing.h"
-#include "Blocks.h"
 
 class Game {
 public:
 	Game(Drawing& drawing);
 	~Game();
-	void move(int input);
+	bool move(int input);
 	void rotate(int input);
+	void fall(int input);
 	bool checkCrash();
 	void getNewControl();
 	void timeUpdate();
+	bool isGameOver();
 	void updateScreen( int type);
-
+	bool pause;
 protected:
 	Drawing &drawing;
-	Blocks *block;
+	
 	// 현재 y좌표 , 현재 x좌표, 도형종류, 회전 횟수
 	vector<int> start;
 	vector<int> now;
-	int speed;
-	int prev_time;
+	DWORD speed;
+	DWORD prevTime;
+	
 };
 
 
