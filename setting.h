@@ -23,6 +23,8 @@ using namespace std;
 
 #define POS(x)			(WHITE_SPACE + (x) * INTERVAL)
 
+#define AIPOS(x)		(3 * WHITE_SPACE + (x + WIDTH_LINE * 3 / 2) * INTERVAL)
+
 #define PII				pair<int, int>
 
 
@@ -48,5 +50,5 @@ using namespace std;
 #define DRAW			2
 #define LINECLEAR		3
 
-
-
+#define SOLOMODE		1
+#define	AIMODE			2

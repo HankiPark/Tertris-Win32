@@ -154,8 +154,6 @@ void Game::updateScreen(int type) {
 
 bool Game::checkCrash() {
 
-	BLOCKMAP screen = drawing.screen;
-
 	int height = now[0];
 	int width = now[1];
 	int figure = now[2];

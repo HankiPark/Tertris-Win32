@@ -13,15 +13,17 @@
 #include "Drawing.h"
 #include "Blocks.h"
 #include "Game.h"
+#include "Ai.h"
 using namespace std;
 // 82 , 45
 
 unsigned int score = 0;
 WCHAR word[1024];
-unsigned int game_mode = 1;
+unsigned int gameMode = SOLOMODE;
 unsigned int game_speed = 1000;
 Drawing* drawing;
 Game* game;
+Ai* ai;
 //Blocks* block;
 
 RECT gameBox = {POS(0), POS(0), POS(WIDTH_LINE), POS(HEIGHT_LINE)};
@@ -42,21 +44,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 	
 	if (umsg == WM_CREATE) {
 		hdc = GetDC(hwnd);
+		drawing = new Drawing(hdc, hwnd);
 		if (MessageBox(hwnd, L"게임 모드를 선택하세요 \n YES : 1vs1 대전 / NO : vs AI", L"게임모드 선택", MB_YESNO) == IDYES) {
 			cout << "solo" << endl;
-			game_mode = 1;
+			gameMode = SOLOMODE;
 		}
 		else {
-			game_mode = 2;
+			ai = new Ai(*drawing);
+			gameMode = AIMODE;
+			SetWindowPos(hwnd, NULL, 0, 0, (3 * WHITE_SPACE + WIDTH_LINE * INTERVAL + OPTION_BOX * INTERVAL) * 2, 2.5 * WHITE_SPACE + HEIGHT_LINE * INTERVAL, 0);
 			cout << "ai" << endl;
 		}
 		//block = new Blocks();
-		drawing = new Drawing(hdc, hwnd);
+		
 		game = new Game(*drawing);
 		SetTimer(hwnd, 1, game_speed, NULL);
 		ReleaseDC(hwnd, hdc);
 	} else if (umsg == WM_PAINT) {
-		drawing->drawBackground(game_mode);
+
+		drawing->drawBackground(gameMode);
 		
 	}
 	else if (umsg == WM_CHAR) {
@@ -79,8 +85,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 		//cout << game->pause << endl;
 		if (game->pause == false) {
 			game->timeUpdate();
+			if (gameMode == AIMODE) {
+				ai->timeUpdateAi();
+			}
 			InvalidateRect(hwnd, NULL, true);
-
+			
 		}
 	}
 	else if (umsg == WM_DESTROY) {
@@ -109,11 +118,11 @@ int WINAPI main(HINSTANCE hIns, HINSTANCE hPrevIns, LPSTR lpCmdLine, int nCmdSho
 	wc.lpszMenuName = NULL;
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	RegisterClass(&wc);
-
+	
 	HWND hwnd = CreateWindow(class_name, class_name, WS_OVERLAPPEDWINDOW, 0, 0,
 		3 * WHITE_SPACE + WIDTH_LINE * INTERVAL + OPTION_BOX * INTERVAL, 2.5 * WHITE_SPACE + HEIGHT_LINE * INTERVAL,
 		NULL, NULL, hIns, NULL);
-
+	
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
 

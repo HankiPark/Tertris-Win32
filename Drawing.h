@@ -9,14 +9,22 @@ public:
 	Drawing(HDC hdc, HWND hwnd);
 	~Drawing();
 	void isGameOver();
-	void drawBackground(int game_mode);
+	void drawBackground(int gameMode);
+	void drawAiBackground();
 	void drawScore();
 	void drawBlock(double h, double w, int color);
+	void drawAiBlock(double h, double w, int color);
 	void drawScreen();
+	void drawAiScreen();
 	void drawNextBlock();
+	void drawAiNextBlock();
 	BLOCKMAP screen;
+	BLOCKMAP aiScreen;
+	BLOCKMAP aiReverseScreen;
 	int nextBlock;
+	int aiNextBlock;
 	int score;
+	int aiScore;
 	Blocks* block;
 protected:
 	WCHAR word[1024];
