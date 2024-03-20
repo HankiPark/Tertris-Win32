@@ -9,6 +9,7 @@
 #include <Windows.h>
 #include <vector>
 #include <deque>
+#include <thread>
 using namespace std;
 
 #define WIDTH_LINE		15
@@ -32,6 +33,7 @@ using namespace std;
 #define LEFT			2
 #define UP				3
 #define DOWN			4
+#define ROTATE			5
 
 #define BLOCKMAP		vector<vector<int>>
 

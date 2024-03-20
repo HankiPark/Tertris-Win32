@@ -20,7 +20,7 @@ public:
 	void drawAiNextBlock();
 	BLOCKMAP screen;
 	BLOCKMAP aiScreen;
-	BLOCKMAP aiReverseScreen;
+
 	int nextBlock;
 	int aiNextBlock;
 	int score;

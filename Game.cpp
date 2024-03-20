@@ -7,7 +7,7 @@ Game::Game(Drawing& drawing) :
 	start = { 0, WIDTH_LINE / 2 - 2, rand() % 7 + 1, 0 };
 	//cout << start[0] << start[1] << start[2] << start[3] << endl;
 	now = start;
-	speed = 100;
+	speed = 30;
 	prevTime = timeGetTime();
 	pause = false;
 	updateScreen(DRAW);
@@ -55,8 +55,10 @@ bool Game::move(int input) {
 			updateScreen(DRAW);
 			updateScreen(LINECLEAR);
 			getNewControl();
-			isGameOver();
-			updateScreen(DRAW);
+			if (!isGameOver()) {
+				updateScreen(DRAW);
+			}
+			
 			return false;
 		}
 		else {

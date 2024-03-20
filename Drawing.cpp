@@ -13,15 +13,7 @@ Drawing::Drawing(HDC hdc, HWND hwnd) :
 		}
 	}
 	
-	for (int w = 0; w < WIDTH_LINE + 1; w++) {
-		aiReverseScreen.push_back(vector<int>());
 
-		for (int h = 0; h < HEIGHT_LINE + 1; h++) {
-			aiReverseScreen[w].push_back(0);
-			
-		}
-		
-	}
 	block = new Blocks();
 	score = 0;
 	aiScore = 0;
