@@ -4,11 +4,10 @@
 #include <ctime>
 #include <string.h>
 #include <stdio.h>
-#include <deque>
 #include <algorithm>
 #include <Windows.h>
 #include <vector>
-#include <deque>
+#include <queue>
 #include <thread>
 #include <mutex>
 using namespace std;

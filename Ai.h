@@ -21,6 +21,9 @@ public:
 	void updateTempScreenAi(vector<int> temp, int type);
 	bool pauseAi;
 
+//	RECT getNowLocAi();
+	bool updateComputerUI;
+
 	void getOptimizedLocationAi();
 	void updateTempScreenAi();
 	double totalHeight(BLOCKMAP reverseScreen);
@@ -28,9 +31,10 @@ public:
 	double countHole(BLOCKMAP reverseScreen);
 	double countBump(BLOCKMAP reverseScreen);
 	BLOCKMAP aiTempScreen;
-
+	bool time;
 protected:
-	thread LogicThread;
+	thread logicThread;
+	thread aiTimeThread;
 	Drawing &drawing;
 	vector<int> startAi;
 	vector<int> nowAi;
@@ -38,6 +42,7 @@ protected:
 	DWORD prevTimeAi;
 	vector<int> aiMove;
 	mutex mt;
+	
 };
 
 #endif

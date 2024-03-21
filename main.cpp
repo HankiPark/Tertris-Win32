@@ -24,9 +24,13 @@ unsigned int game_speed = 1000;
 Drawing* drawing;
 Game* game;
 Ai* ai;
+thread playerThread;
+thread computerThread;
 //Blocks* block;
-RECT gameBox = {POS(0), POS(0), POS(WIDTH_LINE), POS(HEIGHT_LINE)};
-
+RECT playerOrb = { POS(0) , POS(0), POS(WIDTH_LINE), POS(HEIGHT_LINE)};
+RECT computerOrb = { AIPOS(0), POS(0), AIPOS(WIDTH_LINE), POS(HEIGHT_LINE)};
+RECT playerUIOrb = { POS(WIDTH_LINE + OPTION_BOX / 2) , POS(HEIGHT_LINE / 3), POS(WIDTH_LINE + OPTION_BOX / 2 + 4), POS(HEIGHT_LINE / 3 + 7) };
+RECT computerUIOrb = { AIPOS(WIDTH_LINE + OPTION_BOX / 2), POS(HEIGHT_LINE / 3), AIPOS(WIDTH_LINE + OPTION_BOX / 2 + 4), POS(HEIGHT_LINE / 3 + 4) };
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam);
 int WINAPI main(HINSTANCE hIns, HINSTANCE hPrevIns, LPSTR lpCmdLine, int nCmdShow);
 
@@ -37,7 +41,7 @@ int WINAPI main(HINSTANCE hIns, HINSTANCE hPrevIns, LPSTR lpCmdLine, int nCmdSho
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 	
 	HDC hdc;
-	PAINTSTRUCT ps;
+	//PAINTSTRUCT ps;
 	
 	if (umsg == WM_CREATE) {
 		hdc = GetDC(hwnd);
@@ -60,12 +64,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 		SetTimer(hwnd, 1, game_speed, NULL);
 		ReleaseDC(hwnd, hdc);
 	} else if (umsg == WM_PAINT) {
-
 		drawing->drawBackground(gameMode);
-		
+		if (gameMode == AIMODE) {
+			drawing->drawAiBackground();
+		}
 	}
 	else if (umsg == WM_CHAR) {
-		if (game->pause == true) {
+		if (drawing->pause == true) {
 			
 		} else if (wparam == 'r') {
 			game->rotate(wparam);
@@ -78,18 +83,42 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 		}
 		
 		//drawing->drawScreen(); 
-		InvalidateRect(hwnd, NULL, true);
+		InvalidateRect(hwnd, &playerOrb, true);
+		//InvalidateRect(hwnd, NULL, true);
 	}
 	else if (umsg == WM_TIMER) {
-		//cout << game->pause << endl;
-		if (game->pause == false) {
-			game->timeUpdate();
-			if (gameMode == AIMODE) {
-				ai->timeUpdateAi();
-			}
-			InvalidateRect(hwnd, NULL, true);
-			
+		if (game->time == true) {
+			InvalidateRect(hwnd, &playerOrb, true);
 		}
+		if (game->updatePlayerUI == true) {
+			game->updatePlayerUI = false;
+			InvalidateRect(hwnd, &playerUIOrb, true);
+		}
+		if (ai->time == true) {
+			InvalidateRect(hwnd, &computerOrb, true);
+		}
+		if (ai->updateComputerUI == true) {
+			ai->updateComputerUI = false;
+			InvalidateRect(hwnd, &computerUIOrb, true);
+		}
+		//cout << game->pause << endl;
+	/*	if (game->pause == false) {
+			//playerThread = thread(&Game::timeUpdate, game);
+			//playerThread.detach();
+			game->timeUpdate();
+			InvalidateRect(hwnd, &playerOrb, true);
+			//RECT orb = { POS(0) , POS(0), 3 * WHITE_SPACE + WIDTH_LINE * INTERVAL + OPTION_BOX * INTERVAL, 2.5 * WHITE_SPACE + HEIGHT_LINE * INTERVAL };
+			//InvalidateRect(hwnd, &orb, true);
+			if (gameMode == AIMODE) {
+				//computerThread = thread(&Ai::timeUpdateAi, ai);
+			//	computerThread.detach();
+				ai->timeUpdateAi();
+				InvalidateRect(hwnd, &computerOrb, true);
+			}
+			
+			
+			//InvalidateRect(hwnd, NULL, true);
+		}*/
 	}
 	else if (umsg == WM_DESTROY) {
 		KillTimer(hwnd, 1);

@@ -16,10 +16,15 @@ public:
 	void timeUpdate();
 	bool isGameOver();
 	void updateScreen( int type);
-	bool pause;
+	bool time;
+
+	bool updatePlayerUI;
+
+//	RECT getNowLoc();
 protected:
 	Drawing &drawing;
 	
+	thread timeThread;
 	// 현재 y좌표 , 현재 x좌표, 도형종류, 회전 횟수
 	vector<int> start;
 	vector<int> now;

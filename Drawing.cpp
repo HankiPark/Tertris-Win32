@@ -19,17 +19,21 @@ Drawing::Drawing(HDC hdc, HWND hwnd) :
 	aiScore = 0;
 	nextBlock = rand() % 7 + 1;
 	aiNextBlock = rand() % 7 + 1;
-
+	pause = false;
+	playerScore = { POS(0) , POS(0), POS(WIDTH_LINE), POS(HEIGHT_LINE) };
 }
 
 void Drawing::drawAiBackground() {
+	//PAINTSTRUCT ps;
+	//hdc = BeginPaint(hwnd, &ps);
 	drawAiScreen();
 	drawAiNextBlock();
+
+	//EndPaint(hwnd, &ps);
 
 }
 
 void Drawing::drawBackground(int gameMode) {
-
 	PAINTSTRUCT ps;
 	hdc = BeginPaint(hwnd, &ps);
 
@@ -37,15 +41,20 @@ void Drawing::drawBackground(int gameMode) {
 	drawScreen();
 	drawNextBlock();
 	drawScore();
-	if (gameMode == AIMODE) {
-		drawAiBackground();
+	if (gameMode == SOLOMODE) {
+		EndPaint(hwnd, &ps);
 	}
-	EndPaint(hwnd, &ps);
+	else {
+		drawAiBackground();
+		EndPaint(hwnd, &ps);
+	}
+	
 }
 
 void Drawing::drawScore() {
 	wsprintfW(word, L"score : %d", score * 10);
 	TextOut(hdc, POS(WIDTH_LINE + OPTION_BOX / 2), POS(HEIGHT_LINE / 3 + 5), word, lstrlen(word));
+
 }
 
 void Drawing::drawNextBlock() {
@@ -68,6 +77,7 @@ void Drawing::drawNextBlock() {
 			}	
 		}
 	}
+	
 }
 
 void Drawing::drawAiNextBlock() {
@@ -90,6 +100,7 @@ void Drawing::drawAiNextBlock() {
 			}
 		}
 	}
+
 }
 
 void Drawing::drawBlock(double h, double w, int color) {
@@ -168,7 +179,6 @@ void Drawing::drawAiBlock(double h, double w, int color) {
 
 	FillRect(hdc, &r, brush);
 	FrameRect(hdc, &r, border);
-
 	DeleteObject(brush);
 	DeleteObject(border);
 	return;

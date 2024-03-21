@@ -15,11 +15,16 @@ Ai::Ai(Drawing& drawing) :
 	startAi = { 0, WIDTH_LINE / 2 - 2, rand() % 7 + 1, 0 };
 	//cout << startAi[0] << startAi[1] << startAi[2] << startAi[3] << endl;
 	nowAi = startAi;
-	speedAi = 30;
-	prevTimeAi = timeGetTime();
+	speedAi = 500;
+	//prevTimeAi = timeGetTime();
 	pauseAi = false;
-	LogicThread = thread(&Ai::getOptimizedLocationAi, this);
-	LogicThread.detach();
+	time = false;
+	updateComputerUI = true;
+	logicThread = thread(&Ai::getOptimizedLocationAi, this);
+	logicThread.detach();
+
+	aiTimeThread = thread(& Ai::timeUpdateAi, this);
+	aiTimeThread.detach();
 	//thread t1 (getOptimizedLocationAi);
 	//t1.detach();
 	//getOptimizedLocationAi();
@@ -62,15 +67,18 @@ bool Ai::moveAi(int input) {
 		updateScreenAi(CLEAN);
 		nowAi[0]++;
 		if (checkCrashAi()) {
+
 			nowAi[0]--;
 			updateScreenAi(DRAW);
 			
 			updateScreenAi(LINECLEAR);
 			getNewControlAi();
-			LogicThread = thread(&Ai::getOptimizedLocationAi, this);
-			LogicThread.detach();
+			updateComputerUI = true;
+			logicThread = thread(&Ai::getOptimizedLocationAi, this);
+			logicThread.detach();
 			isGameOverAi();
 			updateScreenAi(DRAW);
+			
 			return false;
 		}
 		else {
@@ -143,7 +151,7 @@ void Ai::updateScreenAi(int type) {
 				}
 			}
 			if (check_zero == 0) {
-				
+				drawing.aiScore++;
 				cout << "erase" << endl;
 				drawing.aiScreen.erase(drawing.aiScreen.begin() + h + height);
 				drawing.aiScreen.insert(drawing.aiScreen.begin(), vector<int>(WIDTH_LINE, 0));
@@ -196,18 +204,25 @@ void Ai::updateTempScreenAi(vector<int> temp, int type) {
 
 
 void Ai::timeUpdateAi() {
-	DWORD currentTime = timeGetTime();
-	cout << aiMove.size();
-	autoMoveAi();
-
-
-	if (currentTime - prevTimeAi < speedAi) {
-		return;
+	while (drawing.pause == false) {
+		time = true;
+		this_thread::sleep_for(chrono::milliseconds(speedAi));
+		autoMoveAi();
+		moveAi('s');
+		time = false;
 	}
-	if (moveAi('s')) {
-		prevTimeAi = currentTime;
+//	DWORD currentTime = timeGetTime();
+//	cout << aiMove.size();
+//	autoMoveAi();
 
-	}
+	//cout <<currentTime << " "<<  speedAi << endl;
+//	if (currentTime - prevTimeAi < speedAi) {
+//		return;
+//	}
+//	if (moveAi('s')) {
+//		prevTimeAi = currentTime;
+
+//	}
 
 }
 
@@ -396,17 +411,17 @@ void Ai::getOptimizedLocationAi() {
 			tempScore -= 0.45663 * countHole(aiTempScreen);
 			//cout << tempScore << " ";
 			tempScore -= 0.184483 * countBump(aiTempScreen);
-			cout << tempScore << endl;
+		//	cout << tempScore << endl;
 			//cout << "-----------" << endl;
 			//cout << "fu" << endl;
-			for (auto a : aiTempScreen) {
+		/*	for (auto a : aiTempScreen) {
 				for (auto b : a) {
 					cout << b << " ";
 				}
 				cout << endl;
 			}
 			cout << endl;
-			
+			*/
 			if (maxScore <= tempScore) {
 				maxScore = tempScore;
 				tempMove.clear();
@@ -504,4 +519,9 @@ double Ai::countBump(BLOCKMAP aiTempScreen) {
 }
 
 
-
+/*
+RECT Ai::getNowLocAi() {
+	RECT rec = { AIPOS(nowAi[1] - 4), POS(nowAi[0] - 4), AIPOS(nowAi[1] + 4), POS(nowAi[0] + 4) };
+	return rec;
+}
+*/

@@ -7,10 +7,14 @@ Game::Game(Drawing& drawing) :
 	start = { 0, WIDTH_LINE / 2 - 2, rand() % 7 + 1, 0 };
 	//cout << start[0] << start[1] << start[2] << start[3] << endl;
 	now = start;
-	speed = 30;
-	prevTime = timeGetTime();
-	pause = false;
+	speed = 800;
+	//prevTime = timeGetTime();
+	
 	updateScreen(DRAW);
+	timeThread = thread(&Game::timeUpdate, this);
+	timeThread.detach();
+	time = false;
+	updatePlayerUI = true;
 }
 
 bool Game::move(int input) {
@@ -55,6 +59,7 @@ bool Game::move(int input) {
 			updateScreen(DRAW);
 			updateScreen(LINECLEAR);
 			getNewControl();
+			updatePlayerUI = true;
 			if (!isGameOver()) {
 				updateScreen(DRAW);
 			}
@@ -177,15 +182,13 @@ bool Game::checkCrash() {
 }
 
 void Game::timeUpdate() {
-	DWORD currentTime = timeGetTime();
-	if (currentTime - prevTime < speed) {
-		return;
-	}
-	if (move('s')) {
-		prevTime = currentTime;
+	while (drawing.pause == false) {
+		time = true;
+		this_thread::sleep_for(chrono::milliseconds(speed));
 		
+		move('s');
+		time = false;
 	}
-	
 }
 
 void Game::fall(int input) {
@@ -208,12 +211,18 @@ void Game::fall(int input) {
 
 bool Game::isGameOver() {
 	if (checkCrash()) {
-		pause = true;
+		drawing.pause = true;
 		drawing.isGameOver();
 		return true;
 	}
 	return false;
 }
+
+/*
+RECT Game::getNowLoc() {
+	RECT rec = {POS(now[1] - 4), POS(now[0] - 4), POS(now[1] + 4), POS(now[0] + 4)};
+	return rec;
+}*/
 
 
 
