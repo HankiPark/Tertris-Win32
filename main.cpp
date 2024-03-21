@@ -25,7 +25,6 @@ Drawing* drawing;
 Game* game;
 Ai* ai;
 //Blocks* block;
-
 RECT gameBox = {POS(0), POS(0), POS(WIDTH_LINE), POS(HEIGHT_LINE)};
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam);
@@ -39,8 +38,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 	
 	HDC hdc;
 	PAINTSTRUCT ps;
-
-	
 	
 	if (umsg == WM_CREATE) {
 		hdc = GetDC(hwnd);
@@ -50,6 +47,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 			gameMode = SOLOMODE;
 		}
 		else {
+			//t1 = thread(ai, *drawing);
+			//t1.detach();
 			ai = new Ai(*drawing);
 			gameMode = AIMODE;
 			SetWindowPos(hwnd, NULL, 0, 0, (3 * WHITE_SPACE + WIDTH_LINE * INTERVAL + OPTION_BOX * INTERVAL) * 2, 2.5 * WHITE_SPACE + HEIGHT_LINE * INTERVAL, 0);

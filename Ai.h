@@ -10,6 +10,7 @@ public:
 	~Ai();
 	bool moveAi(int input);
 	void rotateAi(int input);
+
 	bool checkCrashAi();
 	bool checkCrashAi(vector<int> temp);
 	void getNewControlAi();
@@ -17,23 +18,26 @@ public:
 	void autoMoveAi();
 	bool isGameOverAi();
 	void updateScreenAi(int type);
+	void updateTempScreenAi(vector<int> temp, int type);
 	bool pauseAi;
 
 	void getOptimizedLocationAi();
-	void updateReverseScreenAi();
+	void updateTempScreenAi();
 	double totalHeight(BLOCKMAP reverseScreen);
 	double completeLine(BLOCKMAP reverseScreen);
 	double countHole(BLOCKMAP reverseScreen);
 	double countBump(BLOCKMAP reverseScreen);
-	BLOCKMAP aiReverseScreen;
+	BLOCKMAP aiTempScreen;
 
 protected:
+	thread LogicThread;
 	Drawing &drawing;
-	vector<int> start;
-	vector<int> now;
-	DWORD speed;
-	DWORD prevTime;
+	vector<int> startAi;
+	vector<int> nowAi;
+	DWORD speedAi;
+	DWORD prevTimeAi;
 	vector<int> aiMove;
+	mutex mt;
 };
 
 #endif

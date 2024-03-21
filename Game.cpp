@@ -141,9 +141,6 @@ void Game::updateScreen(int type) {
 				drawing.screen.insert(drawing.screen.begin(), vector<int>(WIDTH_LINE, 0));
 				drawing.score++;
 			}
-			else {
-			//	cout << "no" << endl;
-			}
 		}
 	}
 /*	for (int i = 0; i < HEIGHT_LINE; i++) {
