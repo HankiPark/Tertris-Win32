@@ -3,18 +3,24 @@
 Game::Game(Drawing& drawing) :
 	drawing(drawing)
 {
-	
+	// 화면의 가운데서 블록이 등장하게끔
 	start = { 0, WIDTH_LINE / 2 - 2, rand() % 7 + 1, 0 };
-	//cout << start[0] << start[1] << start[2] << start[3] << endl;
+	// 초기 세팅 저장
 	now = start;
+	// 블록 속도 지정
 	speed = 800;
-	//prevTime = timeGetTime();
 	
+	// 등장 블록 업데이트
 	updateScreen(DRAW);
+
+	// 시간에 따라 화면이 변경되게끔 스레드 실행 
 	timeThread = thread(&Game::timeUpdate, this);
 	timeThread.detach();
 	time = false;
-	updatePlayerUI = true;
+}
+
+Game::~Game() {
+
 }
 
 bool Game::move(int input) {
@@ -30,8 +36,6 @@ bool Game::move(int input) {
 			updateScreen(DRAW);
 			return true;
 		}
-		
-		
 	}
 	if (input == 'd') {
 		updateScreen(CLEAN);
@@ -45,11 +49,6 @@ bool Game::move(int input) {
 			updateScreen(DRAW);
 			return true;
 		}
-		//cout << "right" << endl;
-	}
-	if (input == 'w') {
-		//now[1]++;
-	//	cout << "up" << endl;
 	}
 	if (input == 's') {
 		updateScreen(CLEAN);
@@ -59,11 +58,9 @@ bool Game::move(int input) {
 			updateScreen(DRAW);
 			updateScreen(LINECLEAR);
 			getNewControl();
-			updatePlayerUI = true;
 			if (!isGameOver()) {
 				updateScreen(DRAW);
 			}
-			
 			return false;
 		}
 		else {
@@ -75,7 +72,6 @@ bool Game::move(int input) {
 }
 
 void Game::getNewControl() {
-
 	now = { start[0], start[1], drawing.nextBlock - 1, 0 };
 	drawing.nextBlock = rand() % 7 + 1;
 	drawing.drawNextBlock();
@@ -99,8 +95,6 @@ void Game::rotate(int input) {
 }
 
 void Game::updateScreen(int type) {
-
-	//cout << &screen[0][0] << endl;
 	int height = now[0];
 	int width = now[1];
 	int figure = now[2];
@@ -141,23 +135,16 @@ void Game::updateScreen(int type) {
 				}
 			}
 			if (check_zero == 0) {
-			//	cout << "erase" << endl;
 				drawing.screen.erase(drawing.screen.begin() + h + height);
 				drawing.screen.insert(drawing.screen.begin(), vector<int>(WIDTH_LINE, 0));
 				drawing.score++;
+				drawing.aiDebt.push(pair<int, int>(rand() % 3, rand() % WIDTH_LINE));
 			}
 		}
 	}
-/*	for (int i = 0; i < HEIGHT_LINE; i++) {
-		for (int j = 0; j < WIDTH_LINE; j++) {
-			cout << drawing.screen[i][j] << " ";
-		}
-		cout << endl;
-	} */
 }
 
 bool Game::checkCrash() {
-
 	int height = now[0];
 	int width = now[1];
 	int figure = now[2];
@@ -183,11 +170,15 @@ bool Game::checkCrash() {
 
 void Game::timeUpdate() {
 	while (drawing.pause == false) {
-		time = true;
-		this_thread::sleep_for(chrono::milliseconds(speed));
-		
-		move('s');
-		time = false;
+		if (drawing.debt.empty()) {
+			time = true;
+			this_thread::sleep_for(chrono::milliseconds(speed));
+			move('s');
+			time = false;
+		}
+		else {
+			payOff();
+		}
 	}
 }
 
@@ -200,7 +191,11 @@ void Game::fall(int input) {
 			if (checkCrash()) {
 				now[0]--;
 				updateScreen(DRAW);
-				move('s');
+				updateScreen(LINECLEAR);
+				getNewControl();
+				if (!isGameOver()) {
+					updateScreen(DRAW);
+				}
 				break;
 			}
 		}
@@ -224,5 +219,16 @@ RECT Game::getNowLoc() {
 	return rec;
 }*/
 
-
+void Game::payOff() {
+	updateScreen(CLEAN);
+	pair<int, int> de = drawing.debt.front();
+	drawing.debt.pop();
+	vector<int> ad(WIDTH_LINE, TRASHCOLOR);
+	ad[de.second] = 0;
+	for (int i = 0; i < de.first; i++) {
+		drawing.screen.insert(drawing.screen.begin() + HEIGHT_LINE, ad);
+		drawing.screen.erase(drawing.screen.begin());
+	}
+	updateScreen(DRAW);
+}
 

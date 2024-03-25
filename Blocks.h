@@ -6,7 +6,6 @@
 class Blocks {
 public:
 	Blocks();
-	~Blocks();
 	vector<BLOCKMAP> getBlock(int ran);
 protected:
 	vector<BLOCKMAP> OBlock;

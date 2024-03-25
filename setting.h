@@ -44,7 +44,7 @@ using namespace std;
 #define LBLOCKCOLOR		5
 #define JBLOCKCOLOR		6
 #define TBLOCKCOLOR		7
-
+#define TRASHCOLOR		10
 
 
 

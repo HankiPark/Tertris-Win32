@@ -1,54 +1,63 @@
 #include "Drawing.h"
 
 Drawing::Drawing(HDC hdc, HWND hwnd) :
-	hdc(hdc), hwnd(hwnd), init({POS(WIDTH_LINE / 2) - POS(2), POS(0)})
+	hdc(hdc), hwnd(hwnd)
 {
 	for (int h = 0; h < HEIGHT_LINE + 1; h++) {
 		screen.push_back(vector<int>());
 		aiScreen.push_back(vector<int>());
-		
 		for (int w = 0; w < WIDTH_LINE + 1; w++) {
 			screen[h].push_back(0);
 			aiScreen[h].push_back(0);
 		}
 	}
-	
-
 	block = new Blocks();
 	score = 0;
-	aiScore = 0;
 	nextBlock = rand() % 7 + 1;
 	aiNextBlock = rand() % 7 + 1;
 	pause = false;
-	playerScore = { POS(0) , POS(0), POS(WIDTH_LINE), POS(HEIGHT_LINE) };
 }
 
 void Drawing::drawAiBackground() {
-	//PAINTSTRUCT ps;
-	//hdc = BeginPaint(hwnd, &ps);
 	drawAiScreen();
 	drawAiNextBlock();
-
-	//EndPaint(hwnd, &ps);
-
 }
 
 void Drawing::drawBackground(int gameMode) {
 	PAINTSTRUCT ps;
+
+	HDC MemDC, tmpDC;
+	static HBITMAP BackBit, oldBackBit;
+	static RECT bufferRT;
+
 	hdc = BeginPaint(hwnd, &ps);
+	GetClientRect(hwnd, &bufferRT);
+	MemDC = CreateCompatibleDC(hdc);
+	BackBit = CreateCompatibleBitmap(hdc, bufferRT.right, bufferRT.bottom);
+	oldBackBit = (HBITMAP)SelectObject(MemDC, BackBit);
+	PatBlt(MemDC, 0, 0, bufferRT.right, bufferRT.bottom, BLACKNESS);
+	tmpDC = hdc;
+	hdc = MemDC;
+	MemDC = tmpDC;
 
 	TextOut(hdc, POS(0), POS(HEIGHT_LINE + 1), L"s : down / a : left / d : right / r : rotate / w : bottommost", lstrlen(L"s : down / a : left / d : right / r : rotate / w : bottommost"));
 	drawScreen();
 	drawNextBlock();
 	drawScore();
-	if (gameMode == SOLOMODE) {
-		EndPaint(hwnd, &ps);
-	}
-	else {
+
+	if (gameMode == AIMODE) {
 		drawAiBackground();
-		EndPaint(hwnd, &ps);
 	}
-	
+
+	tmpDC = hdc;
+	hdc = MemDC;
+	MemDC = tmpDC;
+	GetClientRect(hwnd, &bufferRT);
+	BitBlt(hdc, 0, 0, bufferRT.right, bufferRT.bottom, MemDC, 0, 0, SRCCOPY);
+	SelectObject(MemDC, oldBackBit);
+	DeleteObject(BackBit);
+	DeleteDC(MemDC);
+	EndPaint(hwnd, &ps);
 }
 
 void Drawing::drawScore() {
@@ -128,6 +137,9 @@ void Drawing::drawBlock(double h, double w, int color) {
 	case TBLOCKCOLOR:
 		brush = CreateSolidBrush(RGB(128, 128, 255));
 		break;
+	case TRASHCOLOR:
+		brush = CreateSolidBrush(RGB(127, 127, 127));
+		break;
 	default:
 		return;
 		break;
@@ -168,6 +180,9 @@ void Drawing::drawAiBlock(double h, double w, int color) {
 		break;
 	case TBLOCKCOLOR:
 		brush = CreateSolidBrush(RGB(128, 128, 255));
+		break;
+	case TRASHCOLOR:
+		brush = CreateSolidBrush(RGB(127, 127, 127));
 		break;
 	default:
 		return;
@@ -242,6 +257,6 @@ void Drawing::drawAiScreen() {
 
 void Drawing::isGameOver() {
 	cout << "game over" << endl;
-	MessageBox(hwnd, L"게임 모드를 선택하세요 \n YES : 1vs1 대전 / NO : vs AI", L"게임모드 선택", MB_YESNO);
+	MessageBox(hwnd, L"게임 종료", L"게임 끝!", MB_OK);
 
 }

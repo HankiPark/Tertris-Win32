@@ -11,23 +11,15 @@ Ai::Ai(Drawing& drawing) :
 		}
 	}
 	
-	
 	startAi = { 0, WIDTH_LINE / 2 - 2, rand() % 7 + 1, 0 };
-	//cout << startAi[0] << startAi[1] << startAi[2] << startAi[3] << endl;
 	nowAi = startAi;
-	speedAi = 500;
-	//prevTimeAi = timeGetTime();
-	pauseAi = false;
-	time = false;
-	updateComputerUI = true;
+	speedAi = 400;
 	logicThread = thread(&Ai::getOptimizedLocationAi, this);
 	logicThread.detach();
 
 	aiTimeThread = thread(& Ai::timeUpdateAi, this);
 	aiTimeThread.detach();
-	//thread t1 (getOptimizedLocationAi);
-	//t1.detach();
-	//getOptimizedLocationAi();
+
 	updateScreenAi(DRAW);
 }
 
@@ -57,28 +49,19 @@ bool Ai::moveAi(int input) {
 			updateScreenAi(DRAW);
 			return true;
 		}
-		//cout << "right" << endl;
-	}
-	if (input == 'w') {
-		//nowAi[1]++;
-	//	cout << "up" << endl;
 	}
 	if (input == 's') {
 		updateScreenAi(CLEAN);
 		nowAi[0]++;
 		if (checkCrashAi()) {
-
 			nowAi[0]--;
 			updateScreenAi(DRAW);
-			
 			updateScreenAi(LINECLEAR);
 			getNewControlAi();
-			updateComputerUI = true;
 			logicThread = thread(&Ai::getOptimizedLocationAi, this);
 			logicThread.detach();
 			isGameOverAi();
 			updateScreenAi(DRAW);
-			
 			return false;
 		}
 		else {
@@ -104,18 +87,16 @@ void Ai::rotateAi(int input) {
 }
 
 void Ai::updateScreenAi(int type) {
-
-	//cout << &screen[0][0] << endl;
 	int height = nowAi[0];
 	int width = nowAi[1];
 	int figure = nowAi[2];
 	int rotate = nowAi[3];
 
 	BLOCKMAP loc = drawing.block->getBlock(figure)[rotate];
+
 	if (type == CLEAN) {
 		for (int h = 0; h < 4; h++) {
 			for (int w = 0; w < 4; w++) {
-				
 				if (loc[h][w] == 0) {
 					continue;
 				}
@@ -124,11 +105,9 @@ void Ai::updateScreenAi(int type) {
 			}
 		}
 	}
-
 	else if (type == DRAW) {
 		for (int h = 0; h < 4; h++) {
 			for (int w = 0; w < 4; w++) {
-				
 				if (loc[h][w] == 0) {
 					continue;
 				}
@@ -138,7 +117,6 @@ void Ai::updateScreenAi(int type) {
 		}
 	}
 	else if (type == LINECLEAR) {
-		
 		for (int h = 0; h < 4; h++) {
 			if (h + height >= HEIGHT_LINE) {
 				break;
@@ -152,26 +130,17 @@ void Ai::updateScreenAi(int type) {
 			}
 			if (check_zero == 0) {
 				drawing.aiScore++;
-				cout << "erase" << endl;
 				drawing.aiScreen.erase(drawing.aiScreen.begin() + h + height);
 				drawing.aiScreen.insert(drawing.aiScreen.begin(), vector<int>(WIDTH_LINE, 0));
-				
-				//drawing.score++;
+				drawing.debt.push(pair<int, int>(rand() % 3, rand() % WIDTH_LINE));
 			}
 		}
 		updateTempScreenAi(); 
 	}
-	/*	for (int i = 0; i < HEIGHT_LINE; i++) {
-			for (int j = 0; j < WIDTH_LINE; j++) {
-				cout << drawing.screen[i][j] << " ";
-			}
-			cout << endl;
-		} */
 }
 
 void Ai::updateTempScreenAi(vector<int> temp, int type) {
 
-	//cout << &screen[0][0] << endl;
 	int height = temp[0];
 	int width = temp[1];
 	int figure = temp[2];
@@ -201,29 +170,17 @@ void Ai::updateTempScreenAi(vector<int> temp, int type) {
 }
 
 
-
-
 void Ai::timeUpdateAi() {
 	while (drawing.pause == false) {
-		time = true;
-		this_thread::sleep_for(chrono::milliseconds(speedAi));
-		autoMoveAi();
-		moveAi('s');
-		time = false;
+		if (drawing.aiDebt.empty()) {
+			this_thread::sleep_for(chrono::milliseconds(speedAi));
+			autoMoveAi();
+			moveAi('s');
+		}
+		else {
+			payOffAi();
+		}
 	}
-//	DWORD currentTime = timeGetTime();
-//	cout << aiMove.size();
-//	autoMoveAi();
-
-	//cout <<currentTime << " "<<  speedAi << endl;
-//	if (currentTime - prevTimeAi < speedAi) {
-//		return;
-//	}
-//	if (moveAi('s')) {
-//		prevTimeAi = currentTime;
-
-//	}
-
 }
 
 void Ai::autoMoveAi() {
@@ -250,9 +207,6 @@ void Ai::autoMoveAi() {
 
 
 bool Ai::checkCrashAi() {
-
-
-
 	int height = nowAi[0];
 	int width = nowAi[1];
 	int figure = nowAi[2];
@@ -277,7 +231,6 @@ bool Ai::checkCrashAi() {
 }
 
 bool Ai::checkCrashAi(vector<int> temp) {
-
 	int height = temp[0];
 	int width = temp[1];
 	int figure = temp[2];
@@ -304,7 +257,6 @@ bool Ai::checkCrashAi(vector<int> temp) {
 }
 
 void Ai::getNewControlAi() {
-
 	nowAi = { startAi[0], startAi[1], drawing.aiNextBlock - 1, 0 };
 	drawing.aiNextBlock = rand() % 7 + 1;
 	drawing.drawAiNextBlock();
@@ -314,7 +266,7 @@ void Ai::getNewControlAi() {
 
 bool Ai::isGameOverAi() {
 	if (checkCrashAi()) {
-		pauseAi = true;
+		drawing.pause = true;
 		drawing.isGameOver();
 		return true;
 	}
@@ -331,12 +283,12 @@ void Ai::updateTempScreenAi() {
 }
 
 void Ai::getOptimizedLocationAi() {
-	
-	this_thread::sleep_for(chrono::seconds(3));
+	this_thread::sleep_for(chrono::seconds(speedAi / 400));
 	double maxScore = -999.0;
 	vector<int> tempMove;
 	vector<int> t(startAi);
 	t[2] = nowAi[2];
+
 	for (int rt = 3; rt >= 0; rt--) {
 		for (int wd = 0; wd < WIDTH_LINE; wd++) {
 			
@@ -349,11 +301,9 @@ void Ai::getOptimizedLocationAi() {
 			int figure = temp[2];
 			int rotate = rt;
 			temp[3] = rt;
-
 			for (int i = 0; i < rt; i++) {
 				movement.push_back(ROTATE);
 			}
-
 			updateTempScreenAi(temp, DRAW);
 			while (1) {
 				updateTempScreenAi(temp, CLEAN);
@@ -389,8 +339,6 @@ void Ai::getOptimizedLocationAi() {
 				updateTempScreenAi(temp, DRAW);
 			}
 
-
-
 			for (int i = 0; i < HEIGHT_LINE; i++) {
 				updateTempScreenAi(temp, CLEAN);
 				temp[0]++;
@@ -401,27 +349,12 @@ void Ai::getOptimizedLocationAi() {
 				}
 				updateTempScreenAi(temp, DRAW);
 			}
-			//cout << temp[0] << " " << temp[1] << endl;
-			
-			//cout << "rt : " << rt << " wd : " << wd << endl;;
+			// 유전 알고리즘 적용
 			tempScore -= 0.510066 * totalHeight(aiTempScreen);
-			//cout << tempScore <<  " ";
 			tempScore += 0.760666 * completeLine(aiTempScreen);
-			//cout << tempScore << " ";
 			tempScore -= 0.45663 * countHole(aiTempScreen);
-			//cout << tempScore << " ";
 			tempScore -= 0.184483 * countBump(aiTempScreen);
-		//	cout << tempScore << endl;
-			//cout << "-----------" << endl;
-			//cout << "fu" << endl;
-		/*	for (auto a : aiTempScreen) {
-				for (auto b : a) {
-					cout << b << " ";
-				}
-				cout << endl;
-			}
-			cout << endl;
-			*/
+
 			if (maxScore <= tempScore) {
 				maxScore = tempScore;
 				tempMove.clear();
@@ -429,37 +362,25 @@ void Ai::getOptimizedLocationAi() {
 			}
 			updateTempScreenAi(temp, CLEAN);
 		}
-		//cout << " ---" << endl;
 	}
 	aiMove.clear();
 	aiMove.assign(tempMove.begin(), tempMove.end());
-	cout << endl<<"maxScore : " << maxScore << endl;
-	for (auto a : aiMove) {
-		cout << a;
-	}
-	cout << endl;
-	
-
-
 }
 
 double Ai::totalHeight(BLOCKMAP aiTempScreen) {
 	double count = 0.0;
 	vector<int> visited(WIDTH_LINE, 0);
-	//cout << "height : ";
 	for (int h = 0; h < HEIGHT_LINE; h++) {
 		for (int w = 0; w < WIDTH_LINE; w++) {
 			if (visited[w] == 1) {
 				continue;
 			}
 			if (aiTempScreen[h][w] != 0) {
-				//cout << HEIGHT_LINE - h << " ";
 				count += HEIGHT_LINE - h;
 				visited[w] = 1;
 			}
 		}
 	}
-	//cout << endl;
 	return count;
 }
 
@@ -518,10 +439,16 @@ double Ai::countBump(BLOCKMAP aiTempScreen) {
 	return count;
 }
 
-
-/*
-RECT Ai::getNowLocAi() {
-	RECT rec = { AIPOS(nowAi[1] - 4), POS(nowAi[0] - 4), AIPOS(nowAi[1] + 4), POS(nowAi[0] + 4) };
-	return rec;
+void Ai::payOffAi() {
+	updateScreenAi(CLEAN);
+	pair<int, int> de = drawing.aiDebt.front();
+	drawing.aiDebt.pop();
+	vector<int> ad(WIDTH_LINE, TRASHCOLOR);
+	ad[de.second] = 0;
+	for (int i = 0; i < de.first; i++) {
+		drawing.aiScreen.insert(drawing.aiScreen.begin() + HEIGHT_LINE, ad);
+		drawing.aiScreen.erase(drawing.aiScreen.begin());
+	}
+	updateScreenAi(DRAW);
 }
-*/
+
