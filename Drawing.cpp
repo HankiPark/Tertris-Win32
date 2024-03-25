@@ -13,6 +13,7 @@ Drawing::Drawing(HDC hdc, HWND hwnd) :
 	}
 	block = new Blocks();
 	score = 0;
+	aiScore = 0;
 	nextBlock = rand() % 7 + 1;
 	aiNextBlock = rand() % 7 + 1;
 	pause = false;

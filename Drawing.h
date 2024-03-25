@@ -25,6 +25,7 @@ public:
 	int nextBlock;
 	int aiNextBlock;
 	int score;
+	int aiScore;
 	queue<pair<int, int>> debt;
 	queue<pair<int, int>> aiDebt;
 	Blocks* block;

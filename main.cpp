@@ -24,7 +24,7 @@ Game* game;
 Ai* ai;
 thread playerThread;
 thread computerThread;
-bool control;
+bool control = false;
 
 // 플레이어의 화면쪽 UI
 RECT playerOrb = { POS(0) , POS(0), POS(WIDTH_LINE + OPTION_BOX / 2 + 4), POS(HEIGHT_LINE) };
@@ -40,7 +40,6 @@ int WINAPI main(HINSTANCE hIns, HINSTANCE hPrevIns, LPSTR lpCmdLine, int nCmdSho
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 	
 	HDC hdc;
-	HDC backMemDC;
 	if (umsg == WM_CREATE) {
 		hdc = GetDC(hwnd);
 		drawing = new Drawing(hdc, hwnd);
@@ -96,7 +95,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 				InvalidateRect(hwnd, NULL, true);
 			}
 			else {
-				control = true;
+				control = false;
 				InvalidateRect(hwnd, &computerOrb, true);
 			}
 			
