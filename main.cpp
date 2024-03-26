@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <Windows.h>
 #include <vector>
-#include <deque>
 #include "setting.h"
 #include "Drawing.h"
 #include "Blocks.h"
@@ -85,20 +84,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 				game->move(wparam);
 			}
 		}
-		InvalidateRect(hwnd, &playerOrb, true);
+
+		InvalidateRect(hwnd, &playerOrb, false);
+		UpdateWindow(hwnd);
+		this_thread::sleep_for(chrono::milliseconds(100));
 		control = true;
 	}
 	else if (umsg == WM_TIMER) {
 		// 플레이어의 게임 속도에 따른 화면 갱신
 		if (game->time == true) {
 			if (control == false) {
-				InvalidateRect(hwnd, NULL, true);
+				InvalidateRect(hwnd, NULL, false);
 			}
 			else {
 				control = false;
-				InvalidateRect(hwnd, &computerOrb, true);
+				InvalidateRect(hwnd, &computerOrb, false);
 			}
-			
+			UpdateWindow(hwnd);
 		}
 	}
 	else if (umsg == WM_DESTROY) {

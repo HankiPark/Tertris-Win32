@@ -17,6 +17,7 @@ Game::Game(Drawing& drawing) :
 	timeThread = thread(&Game::timeUpdate, this);
 	timeThread.detach();
 	time = false;
+	control = false;
 }
 
 Game::~Game() {
@@ -24,6 +25,7 @@ Game::~Game() {
 }
 
 bool Game::move(int input) {
+	control = true;
 	if (input == 'a') {
 		updateScreen(CLEAN);
 		now[1]--;
@@ -68,6 +70,7 @@ bool Game::move(int input) {
 			return true;
 		}
 	}
+	control = false;
 	return false;
 }
 
@@ -81,6 +84,7 @@ void Game::getNewControl() {
 
 void Game::rotate(int input) {
 	if (input == 'r') {
+		control = true;
 		updateScreen(CLEAN);
 		int prev = now[3];
 		now[3]++;
@@ -121,8 +125,10 @@ void Game::updateScreen(int type) {
 				drawing.screen[h + height][w + width] += loc[h][w];
 			}
 		}
+		control = false;
 	}
 	else if (type == LINECLEAR) {
+		control = true;
 		for (int h = 0; h < 4; h++) {
 			if (h + height >= HEIGHT_LINE) {
 				break;
@@ -141,6 +147,7 @@ void Game::updateScreen(int type) {
 				drawing.aiDebt.push(pair<int, int>(rand() % 3, rand() % WIDTH_LINE));
 			}
 		}
+		control = false;
 	}
 }
 
@@ -173,6 +180,11 @@ void Game::timeUpdate() {
 		if (drawing.debt.empty()) {
 			time = true;
 			this_thread::sleep_for(chrono::milliseconds(speed));
+			while (control == true) {
+				this_thread::sleep_for(chrono::milliseconds(10));
+			}
+			
+			
 			move('s');
 			time = false;
 		}

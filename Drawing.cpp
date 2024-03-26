@@ -36,11 +36,11 @@ void Drawing::drawBackground(int gameMode) {
 	MemDC = CreateCompatibleDC(hdc);
 	BackBit = CreateCompatibleBitmap(hdc, bufferRT.right, bufferRT.bottom);
 	oldBackBit = (HBITMAP)SelectObject(MemDC, BackBit);
-	PatBlt(MemDC, 0, 0, bufferRT.right, bufferRT.bottom, BLACKNESS);
+	PatBlt(MemDC, 0, 0, bufferRT.right, bufferRT.bottom, PATCOPY);
 	tmpDC = hdc;
 	hdc = MemDC;
 	MemDC = tmpDC;
-
+	
 	TextOut(hdc, POS(0), POS(HEIGHT_LINE + 1), L"s : down / a : left / d : right / r : rotate / w : bottommost", lstrlen(L"s : down / a : left / d : right / r : rotate / w : bottommost"));
 	drawScreen();
 	drawNextBlock();
@@ -49,7 +49,7 @@ void Drawing::drawBackground(int gameMode) {
 	if (gameMode == AIMODE) {
 		drawAiBackground();
 	}
-
+	
 	tmpDC = hdc;
 	hdc = MemDC;
 	MemDC = tmpDC;
@@ -57,7 +57,7 @@ void Drawing::drawBackground(int gameMode) {
 	BitBlt(hdc, 0, 0, bufferRT.right, bufferRT.bottom, MemDC, 0, 0, SRCCOPY);
 	SelectObject(MemDC, oldBackBit);
 	DeleteObject(BackBit);
-	DeleteDC(MemDC);
+	DeleteDC(MemDC); 
 	EndPaint(hwnd, &ps);
 }
 
@@ -142,7 +142,7 @@ void Drawing::drawBlock(double h, double w, int color) {
 		brush = CreateSolidBrush(RGB(127, 127, 127));
 		break;
 	default:
-		return;
+		brush = CreateSolidBrush(RGB(255, 255, 255));
 		break;
 	}
 
@@ -186,7 +186,7 @@ void Drawing::drawAiBlock(double h, double w, int color) {
 		brush = CreateSolidBrush(RGB(127, 127, 127));
 		break;
 	default:
-		return;
+		brush = CreateSolidBrush(RGB(255, 255, 255));
 		break;
 	}
 
@@ -203,7 +203,7 @@ void Drawing::drawAiBlock(double h, double w, int color) {
 void Drawing::drawScreen() {
 
 	// 게임 틀
-	HPEN hPen = CreatePen(PS_SOLID, 5, RGB(255, 255, 255));
+	/*HPEN hPen = CreatePen(PS_SOLID, 5, RGB(0, 0, 0));
 	HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
 	MoveToEx(hdc, POS(0) - RADIUS, POS(0), NULL);
 	LineTo(hdc, POS(0) - RADIUS, POS(HEIGHT_LINE));
@@ -212,10 +212,10 @@ void Drawing::drawScreen() {
 	MoveToEx(hdc, POS(0), POS(HEIGHT_LINE), NULL);
 	LineTo(hdc, POS(WIDTH_LINE), POS(HEIGHT_LINE));
 	SelectObject(hdc, hOldPen);
-	DeleteObject(hPen);
+	DeleteObject(hPen);*/
 	// 점수판
 	TextOut(hdc, POS(WIDTH_LINE + OPTION_BOX / 2), POS(HEIGHT_LINE / 3 - 1), L"Next :", lstrlen(L"Next :"));
-	HBRUSH optionBackground = CreateSolidBrush(RGB(255, 255, 255));
+	HBRUSH optionBackground = CreateSolidBrush(RGB(0, 0, 0));
 	RECT orb = { POS(WIDTH_LINE + OPTION_BOX / 2) , POS(HEIGHT_LINE / 3), POS(WIDTH_LINE + 4 + OPTION_BOX / 2), POS(HEIGHT_LINE / 3 + 4) };
 	FrameRect(hdc, &orb, optionBackground);
 	DeleteObject(optionBackground);
@@ -231,7 +231,7 @@ void Drawing::drawScreen() {
 
 void Drawing::drawAiScreen() {
 	//게임 틀
-	HPEN hPen = CreatePen(PS_SOLID, 5, RGB(255, 255, 255));
+	/*HPEN hPen = CreatePen(PS_SOLID, 5, RGB(0, 0, 0));
 	HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
 	MoveToEx(hdc, AIPOS(0) - RADIUS, POS(0), NULL);
 	LineTo(hdc, AIPOS(0) - RADIUS, POS(HEIGHT_LINE));
@@ -240,11 +240,11 @@ void Drawing::drawAiScreen() {
 	MoveToEx(hdc, AIPOS(0), POS(HEIGHT_LINE), NULL);
 	LineTo(hdc, AIPOS(WIDTH_LINE), POS(HEIGHT_LINE));
 	SelectObject(hdc, hOldPen);
-	DeleteObject(hPen);
+	DeleteObject(hPen); */
 
 	// 점수판
 	TextOut(hdc, AIPOS(WIDTH_LINE + OPTION_BOX / 2), POS(HEIGHT_LINE / 3 - 1), L"Next :", lstrlen(L"Next :"));
-	HBRUSH optionBackground = CreateSolidBrush(RGB(255, 255, 255));
+	HBRUSH optionBackground = CreateSolidBrush(RGB(0, 0, 0));
 	RECT orb = { AIPOS(WIDTH_LINE + OPTION_BOX / 2) , POS(HEIGHT_LINE / 3), AIPOS(WIDTH_LINE + 4 + OPTION_BOX / 2), POS(HEIGHT_LINE / 3 + 4) };
 	FrameRect(hdc, &orb, optionBackground);
 	DeleteObject(optionBackground);

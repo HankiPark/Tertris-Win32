@@ -34,7 +34,7 @@ public:
 
 	// WM_TIMER 에 따른 값 변경 체크 인수
 	bool time;
-
+	bool control;
 //	RECT getNowLoc();
 protected:
 	Drawing &drawing;
